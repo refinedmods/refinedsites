@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed Thymeleaf layout plugin not working with shadow JAR.
+
 ## [0.1.1] - 2023-12-23
 
 ### Fixed
