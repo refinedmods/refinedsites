@@ -1,0 +1,28 @@
+plugins {
+    id "application"
+}
+
+apply from: "https://raw.githubusercontent.com/refinedmods/refinedarchitect/v0.7.1/helper.gradle"
+
+application {
+    mainClassName = "com.refinedmods.refinedsites.RefinedSites"
+}
+
+group = 'com.refinedmods'
+archivesBaseName = 'refinedsites'
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    implementation 'org.thymeleaf:thymeleaf:3.1.2.RELEASE'
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
+    implementation 'org.asciidoctor:asciidoctorj:2.5.10'
+    implementation 'com.github.slugify:slugify:3.0.6'
+    implementation 'com.vdurmont:semver4j:3.1.0'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+    implementation 'org.kohsuke:github-api:1.318'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r'
+    implementation 'org.commonmark:commonmark:0.21.0'
+}
