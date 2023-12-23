@@ -7,11 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed JAR not being executable.
+
 ## [0.1.0] - 2023-12-23
 
 ### Added
 
--   Initial release.
+- Initial release.
 
 [Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.1.0...HEAD
 

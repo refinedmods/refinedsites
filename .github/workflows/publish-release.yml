@@ -14,3 +14,4 @@ jobs:
       announce: false
       mutation-testing: false
       sonarqube: false
+      javadoc: false
