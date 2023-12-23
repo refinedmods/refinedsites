@@ -27,3 +27,8 @@ dependencies {
     implementation 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r'
     implementation 'org.commonmark:commonmark:0.21.0'
 }
+
+// https://github.com/ultraq/thymeleaf-layout-dialect/issues/220#issuecomment-944874151
+shadowJar {
+    mergeGroovyExtensionModules()
+}
