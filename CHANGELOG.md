@@ -7,9 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.2] - 2023-12-24
+
 ### Fixed
 
--  Fixed release version ordering.
+-   Fixed release version ordering.
 
 ## [0.2.1] - 2023-12-24
 
@@ -41,7 +43,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.2.2...HEAD
+
+[0.2.2]: https://github.com/refinedmods/refinedsites/compare/v0.2.1...v0.2.2
 
 [0.2.1]: https://github.com/refinedmods/refinedsites/compare/v0.2.0...v0.2.1
 
