@@ -208,6 +208,9 @@ public class Renderer {
     private WebSitemapGenerator getWebSitemapGenerator(final Component component,
                                                        final String sitemapBaseUrl,
                                                        final Path componentOutputPath) {
+        if (component.getPages().isEmpty()) {
+            return null;
+        }
         if (component.isLatest()) {
             try {
                 return new WebSitemapGenerator(sitemapBaseUrl, componentOutputPath.toFile());
