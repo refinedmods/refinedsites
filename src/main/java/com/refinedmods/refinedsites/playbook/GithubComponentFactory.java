@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.SemverException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -38,28 +37,22 @@ class GithubComponentFactory implements ComponentFactory {
                     log.warn("Ignoring tag {}", tagName);
                     continue;
                 }
-                final Semver version;
-                try {
-                    version = new Semver(tagName.substring(1));
-                } catch (SemverException e) {
-                    log.warn("Invalid semver version detected {}", tagName.substring(1), e);
-                    continue;
-                }
+                final Semver version = new Semver(tagName.substring(1));
                 if (version.isGreaterThanOrEqualTo(minVersion)) {
                     log.info("Found valid version {}", version);
                     validTags.add(new Tag(
-                            tagName,
-                            version.getValue(),
-                            "v" + version.getValue(),
-                            false
+                        tagName,
+                        version.getValue(),
+                        "v" + version.getValue(),
+                        false
                     ));
                 }
             }
             validTags.add(new Tag(
-                    config.getSnapshotBranch(),
-                    "snapshot",
-                    "snapshot",
-                    true
+                config.getSnapshotBranch(),
+                "snapshot",
+                "snapshot",
+                true
             ));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -74,23 +67,23 @@ class GithubComponentFactory implements ComponentFactory {
             log.info("Cloning version {} into {}", validTag, path);
             try {
                 Git.cloneRepository()
-                        .setURI(repo.getHtmlUrl().toString())
-                        .setDirectory(rootPath.resolve(path).toFile())
-                        .setBranch(validTag.tagName())
-                        .setDepth(1)
-                        .call();
+                    .setURI(repo.getHtmlUrl().toString())
+                    .setDirectory(rootPath.resolve(path).toFile())
+                    .setBranch(validTag.tagName())
+                    .setDepth(1)
+                    .call();
             } catch (GitAPIException e) {
                 throw new RuntimeException(e);
             }
             final LocalComponentFactory factory = new LocalComponentFactory(
-                    rootPath.resolve(path),
-                    name,
-                    false,
-                    new Version(
-                            validTag.version,
-                            validTag.friendlyVersion,
-                            validTag.snapshot
-                    )
+                rootPath.resolve(path),
+                name,
+                false,
+                new Version(
+                    validTag.version,
+                    validTag.friendlyVersion,
+                    validTag.snapshot
+                )
             );
             components.addAll(factory.getComponents().toList());
         }

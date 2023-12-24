@@ -6,11 +6,9 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Builder
 @Getter
-@ToString(exclude = "pagesPath")
 public class Component {
     private final String name;
     private final boolean root;

@@ -8,9 +8,7 @@ import java.util.Map;
 
 import com.vdurmont.semver4j.Semver;
 import lombok.Getter;
-import lombok.ToString;
 
-@ToString(exclude = "componentsByName")
 public class Site {
     @Getter
     private final String name;
