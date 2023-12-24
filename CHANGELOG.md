@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+-  Fixed insufficient logging.
+
 ## [0.2.2] - 2023-12-24
 
 ### Fixed

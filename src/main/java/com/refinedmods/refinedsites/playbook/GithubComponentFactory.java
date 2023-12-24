@@ -31,6 +31,7 @@ class GithubComponentFactory implements ComponentFactory {
             final GitHub github = GitHub.connectUsingOAuth(token);
             this.repo = github.getRepository(config.getFullRepository());
             final Semver minVersion = new Semver(config.getMinimumVersion());
+            log.info("Retrieving tags from GitHub repository");
             for (final var tag : repo.listTags().toList()) {
                 final String tagName = tag.getName();
                 if (!tagName.startsWith("v")) {
@@ -46,6 +47,8 @@ class GithubComponentFactory implements ComponentFactory {
                         "v" + version.getValue(),
                         false
                     ));
+                } else {
+                    log.info("Ignoring version {}", version);
                 }
             }
             validTags.add(new Tag(
