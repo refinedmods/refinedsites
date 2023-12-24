@@ -28,8 +28,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.vdurmont.semver4j.Semver;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
+@Slf4j
 public class SiteFactory {
     private static final Gson GSON = new GsonBuilder().create();
 
@@ -37,17 +39,25 @@ public class SiteFactory {
 
     public Site getSite() {
         try {
+            log.info("Loading playbook");
             final Path playbookPath = rootPath.resolve("playbook.json");
             final PlaybookConfig json = GSON.fromJson(Files.readString(playbookPath), PlaybookConfig.class);
+            log.info("Loaded playbook");
             final List<Component> components = json.getComponents().stream().flatMap(component -> {
+                log.info("Loading component {}", component.getName());
                 final ComponentFactory factory = getComponentFactory(component);
-                return factory.getComponents();
+                final List<Component> result = factory.getComponents().toList();
+                log.info("Component config yielded {} components", result.size());
+                return result.stream();
             }).collect(Collectors.toList());
+            log.info("Adding root component");
             addRootComponent(components, json);
             final Map<String, List<Component>> componentsByName = components.stream().collect(Collectors.groupingBy(
                 Component::getName
             ));
+            log.info("Retrieving releases");
             final Map<String, Releases> releasesByComponentName = getReleases(json);
+            log.info("Site building complete");
             return new Site(
                 json.getName(),
                 json.getUrl(),
@@ -121,9 +131,11 @@ public class SiteFactory {
 
     private ComponentFactory getComponentFactory(final ComponentConfig component) {
         if (component.getGithub() != null) {
+            log.info("Loading components from GitHub for {}", component.getName());
             return new GithubComponentFactory(rootPath, component.getGithub(), component.getName(), getGhToken());
         }
         if (component.getPath() != null) {
+            log.info("Loading local component {}", component.getName());
             return new LocalComponentFactory(
                 rootPath.resolve(component.getPath()),
                 component.getName(),
@@ -135,6 +147,7 @@ public class SiteFactory {
                 )
             );
         }
+        log.info("Loading empty component {}", component.getName());
         return () -> Stream.of(Component.builder()
             .name(component.getName())
             .rootPath(null)
