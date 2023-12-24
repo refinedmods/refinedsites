@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.vdurmont.semver4j.Semver;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -85,7 +85,11 @@ public class SiteFactory {
         final List<Release> releases = sourceDataByName.entrySet()
             .stream()
             .map(entry -> new Release(entry.getKey(), entry.getValue()))
-            .sorted(Comparator.comparing(Release::getCreatedAt))
+            .sorted((a, b) -> {
+                final Semver sa = new Semver(a.getName().substring(1));
+                final Semver sb = new Semver(b.getName().substring(1));
+                return sa.compareTo(sb);
+            })
             .toList();
         return new Releases(indexedAt, releases, componentName, Stats.of(sourceData));
     }
