@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2023-12-24
+
+### Fixed
+
+-   Fixed trying to generate sitemap for empty component.
+
 ## [0.2.0] - 2023-12-24
 
 ### Added
@@ -31,7 +37,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.2.1...HEAD
+
+[0.2.1]: https://github.com/refinedmods/refinedsites/compare/v0.2.0...v0.2.1
 
 [0.2.0]: https://github.com/refinedmods/refinedsites/compare/v0.1.2...v0.2.0
 
