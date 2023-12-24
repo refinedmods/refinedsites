@@ -15,10 +15,12 @@ import com.refinedmods.refinedsites.render.release.ReleasesIndex;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,10 @@ import javax.annotation.Nullable;
 import com.github.slugify.Slugify;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.redfin.sitemapgenerator.ChangeFreq;
+import com.redfin.sitemapgenerator.SitemapIndexGenerator;
+import com.redfin.sitemapgenerator.WebSitemapGenerator;
+import com.redfin.sitemapgenerator.WebSitemapUrl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
@@ -55,8 +61,10 @@ public class Renderer {
     private final Path sourcePath;
     private final Path outputPath;
     private final LinkBuilderImpl linkBuilder;
+    private final Date renderDate = new Date();
+    private final String url;
 
-    public Renderer(final Path sourcePath, final Path outputPath) {
+    public Renderer(final Path sourcePath, final Path outputPath, final String url) {
         this.sourcePath = sourcePath;
         this.outputPath = outputPath;
         this.linkBuilder = new LinkBuilderImpl(outputPath);
@@ -66,20 +74,29 @@ public class Renderer {
         templateEngine.addDialect(new LayoutDialect());
         templateEngine.setTemplateResolver(resolver);
         templateEngine.setLinkBuilder(linkBuilder);
+        this.url = url;
     }
 
     public void render(final Site site) {
         log.info("Rendering site {}", site);
         try {
             Files.createDirectories(outputPath);
+            final SitemapIndexGenerator sitemapIndex;
+            try {
+                sitemapIndex = new SitemapIndexGenerator(url, outputPath.resolve("sitemap_index.xml").toFile());
+            } catch (final MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
             final Path assetsPath = copyRootAssets();
             renderReleasesIndex(site);
             for (final Component component : site.getComponents()) {
                 renderComponentPre(component);
             }
             for (final Component component : site.getComponents()) {
-                renderComponent(component, assetsPath, site);
+                renderComponent(component, assetsPath, site, sitemapIndex);
             }
+            sitemapIndex.write();
+            Files.writeString(outputPath.resolve("robots.txt"), "Sitemap: " + url + "/sitemap_index.xml");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -120,21 +137,19 @@ public class Renderer {
         component.setSlug(componentSlug);
     }
 
-    private void renderComponent(final Component component, final Path assetsOutputPath, final Site site)
+    private void renderComponent(final Component component,
+                                 final Path assetsOutputPath,
+                                 final Site site,
+                                 final SitemapIndexGenerator sitemapIndex)
         throws IOException {
         log.info("Rendering component {}", component);
-        final Path componentOutputPath;
-        if (component.isRoot()) {
-            componentOutputPath = outputPath;
-        } else if (component.isLatest()) {
-            componentOutputPath = outputPath.resolve(component.getSlug());
-            Files.createDirectories(componentOutputPath);
-        } else {
-            componentOutputPath = outputPath.resolve(component.getSlug()).resolve(
-                component.getVersion().friendlyName()
-            );
-            Files.createDirectories(componentOutputPath);
-        }
+        final Path componentOutputPath = getComponentOutputPath(component);
+        final String sitemapBaseUrl = component.isRoot() ? url : url + "/" + outputPath.relativize(componentOutputPath);
+        final WebSitemapGenerator componentSitemap = getWebSitemapGenerator(
+            component,
+            sitemapBaseUrl,
+            componentOutputPath
+        );
         if (component.getAssetsPath() != null) {
             copyComponentAssets(component, assetsOutputPath);
         }
@@ -162,9 +177,45 @@ public class Renderer {
                 site,
                 pageInfo,
                 parsedReleases,
-                releaseMatchingComponentVersion
+                releaseMatchingComponentVersion,
+                sitemapBaseUrl,
+                componentSitemap
             );
         }
+        if (componentSitemap != null) {
+            componentSitemap.write();
+            sitemapIndex.addUrl(sitemapBaseUrl + "/sitemap.xml", renderDate);
+        }
+    }
+
+    private Path getComponentOutputPath(final Component component) throws IOException {
+        final Path componentOutputPath;
+        if (component.isRoot()) {
+            componentOutputPath = outputPath;
+        } else if (component.isLatest()) {
+            componentOutputPath = outputPath.resolve(component.getSlug());
+            Files.createDirectories(componentOutputPath);
+        } else {
+            componentOutputPath = outputPath.resolve(component.getSlug()).resolve(
+                component.getVersion().friendlyName()
+            );
+            Files.createDirectories(componentOutputPath);
+        }
+        return componentOutputPath;
+    }
+
+    @Nullable
+    private WebSitemapGenerator getWebSitemapGenerator(final Component component,
+                                                       final String sitemapBaseUrl,
+                                                       final Path componentOutputPath) {
+        if (component.isLatest()) {
+            try {
+                return new WebSitemapGenerator(sitemapBaseUrl, componentOutputPath.toFile());
+            } catch (final MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
     }
 
     @Nullable
@@ -320,7 +371,9 @@ public class Renderer {
                             final Site site,
                             final Map<Path, PageInfo> pageInfo,
                             final List<ParsedRelease> releases,
-                            final ParsedRelease releaseMatchingComponentVersion) throws IOException {
+                            final ParsedRelease releaseMatchingComponentVersion,
+                            final String baseUrl,
+                            @Nullable final WebSitemapGenerator sitemapGenerator) throws IOException {
         log.info("Rendering page {}", pagePath);
         final Context context = new Context();
         final PageInfo info = pageInfo.get(pagePath);
@@ -349,6 +402,11 @@ public class Renderer {
         linkBuilder.setCurrentPageOutputPath(pageOutputPath);
         final String template = getTemplate(pagePath);
         templateEngine.process(template, context, fileWriter);
+        if (sitemapGenerator != null && !info.relativePath().contains("404")) {
+            sitemapGenerator.addUrl(new WebSitemapUrl.Options(
+                baseUrl + "/" + componentOutputPath.relativize(pageOutputPath)
+            ).lastMod(renderDate).changeFreq(ChangeFreq.DAILY).build());
+        }
     }
 
     private String getTemplate(final Path pagePath) {

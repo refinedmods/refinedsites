@@ -20,7 +20,7 @@ public class RefinedSites {
         final SiteFactory siteFactory = new SiteFactory(rootPath);
         final Site site = siteFactory.getSite();
         log.info("Loaded site {}", site);
-        final Renderer renderer = new Renderer(rootPath, rootPath.resolve("output/"));
+        final Renderer renderer = new Renderer(rootPath, rootPath.resolve("output/"), site.getUrl());
         renderer.render(site);
         log.info("Done!");
     }

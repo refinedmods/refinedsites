@@ -12,12 +12,4 @@ eclipse/
 *.iws
 .idea/
 out/
-/bin/
-logs/
-.cache/
-node_modules/
-.parcel-cache/
-testing/output/
-testing/dist/
-testing/work/
-testing/gh-**
+testing/

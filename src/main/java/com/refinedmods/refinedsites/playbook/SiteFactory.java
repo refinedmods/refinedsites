@@ -62,11 +62,13 @@ public class SiteFactory {
 
     private Map<String, Releases> getReleases(final PlaybookConfig json) {
         final Map<String, Releases> releasesByComponentName = new HashMap<>();
-        for (final var releaseEntry : json.getReleases().entrySet()) {
-            final ReleaseConfig releaseConfig = releaseEntry.getValue();
-            final String componentName = releaseEntry.getKey();
-            final Releases releases = getReleases(componentName, releaseConfig);
-            releasesByComponentName.put(componentName, releases);
+        if (json.getReleases() != null) {
+            for (final var releaseEntry : json.getReleases().entrySet()) {
+                final ReleaseConfig releaseConfig = releaseEntry.getValue();
+                final String componentName = releaseEntry.getKey();
+                final Releases releases = getReleases(componentName, releaseConfig);
+                releasesByComponentName.put(componentName, releases);
+            }
         }
         return releasesByComponentName;
     }

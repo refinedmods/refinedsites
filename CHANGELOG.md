@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+-  Added sitemap generation.
+
 ## [0.1.2] - 2023-12-23
 
 ### Fixed
