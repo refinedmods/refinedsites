@@ -7,9 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2023-12-24
+
 ### Added
 
--  Added sitemap generation.
+-   Added sitemap generation.
 
 ## [0.1.2] - 2023-12-23
 
@@ -29,7 +31,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.2.0...HEAD
+
+[0.2.0]: https://github.com/refinedmods/refinedsites/compare/v0.1.2...v0.2.0
 
 [0.1.2]: https://github.com/refinedmods/refinedsites/compare/v0.1.1...v0.1.2
 
