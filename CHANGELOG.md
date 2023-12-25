@@ -7,9 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2023-12-25
+
 ### Added
 
--  Support for images.
+-   Support for images.
 
 ## [0.2.3] - 2023-12-24
 
@@ -53,7 +55,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.3.0...HEAD
+
+[0.3.0]: https://github.com/refinedmods/refinedsites/compare/v0.2.3...v0.3.0
 
 [0.2.3]: https://github.com/refinedmods/refinedsites/compare/v0.2.2...v0.2.3
 
