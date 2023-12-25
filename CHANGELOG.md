@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+-  Support for images.
+
 ## [0.2.3] - 2023-12-24
 
 ### Fixed

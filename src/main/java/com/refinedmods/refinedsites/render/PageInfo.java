@@ -1,5 +1,6 @@
 package com.refinedmods.refinedsites.render;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import lombok.Builder;
@@ -10,5 +11,6 @@ record PageInfo(String title,
                 String relativePath,
                 String icon,
                 IconReferences iconReferences,
-                List<TableOfContents> tableOfContents) {
+                List<TableOfContents> tableOfContents,
+                Path pageOutputPath) {
 }

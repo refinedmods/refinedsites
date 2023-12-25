@@ -150,8 +150,11 @@ public class Renderer {
             sitemapBaseUrl,
             componentOutputPath
         );
+        final Map<Path, Path> sourceToDestinationAssets;
         if (component.getAssetsPath() != null) {
-            copyComponentAssets(component, assetsOutputPath);
+            sourceToDestinationAssets = copyComponentAssets(component, assetsOutputPath);
+        } else {
+            sourceToDestinationAssets = Collections.emptyMap();
         }
         final Releases releases = site.getReleases(component);
         if (component.isLatest() && releases != null) {
@@ -165,7 +168,13 @@ public class Renderer {
         final PageAttributeCache pageAttributeCache = new PageAttributeCache();
         final Map<Path, PageInfo> pageInfo = new HashMap<>();
         for (final Path pagePath : component.getPages()) {
-            pageInfo.put(pagePath, renderPagePre(pagePath, component, pageAttributeCache));
+            pageInfo.put(pagePath, renderPagePre(
+                pagePath,
+                component,
+                pageAttributeCache,
+                sourceToDestinationAssets,
+                componentOutputPath
+            ));
         }
         prepareNavigationItems(component.getNavigationItems(), pageInfo);
         for (final Path pagePath : component.getPages()) {
@@ -300,31 +309,37 @@ public class Renderer {
         });
     }
 
-    private void copyComponentAssets(final Component component,
-                                     final Path assetsOutputPath) throws IOException {
+    private Map<Path, Path> copyComponentAssets(final Component component,
+                                                final Path assetsOutputPath) throws IOException {
         if (!Files.exists(component.getAssetsPath())) {
-            return;
+            return Collections.emptyMap();
         }
         final Path componentAssetsPath = assetsOutputPath.resolve(
             component.getAssetsOutputPath() + "/"
         );
+        final Map<Path, Path> sourceToDestinationAssets = new HashMap<>();
         Files.walk(component.getAssetsPath()).forEach(path -> {
             final Path relativePath = component.getAssetsPath().relativize(path);
             final Path targetPath = componentAssetsPath.resolve(relativePath);
             try {
                 Files.createDirectories(targetPath.getParent());
                 Files.copy(path, targetPath);
+                sourceToDestinationAssets.put(path.normalize(), targetPath);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         });
+        return sourceToDestinationAssets;
     }
 
     private PageInfo renderPagePre(final Path pagePath,
                                    final Component component,
-                                   final PageAttributeCache attributeCache) {
+                                   final PageAttributeCache attributeCache,
+                                   final Map<Path, Path> sourceToDestinationAssets,
+                                   final Path componentOutputPath) {
         log.info("Parsing Asciidoc for page {}", pagePath);
         final String relativePath = component.getRelativePagePath(component.getPagesPath(), pagePath);
+        final Path pageOutputPath = componentOutputPath.resolve(relativePath);
         final IconReferences icons = new IconReferences();
         try (Asciidoctor asciidoctor = Asciidoctor.Factory.create()) {
             final PageAttributeCache.PageAttributes pageAttributes = attributeCache.getAttributes(
@@ -332,6 +347,11 @@ public class Renderer {
                 pagePath
             );
             asciidoctor.javaExtensionRegistry().includeProcessor(new IncludeProcessorImpl());
+            asciidoctor.javaExtensionRegistry().treeprocessor(new ImageTreeprocessor(
+                pagePath,
+                pageOutputPath,
+                sourceToDestinationAssets
+            ));
             asciidoctor.javaExtensionRegistry().inlineMacro(new XRefInlineMacroProcessor(
                 component,
                 pagePath,
@@ -353,6 +373,7 @@ public class Renderer {
                     .replace("<table class=\"", "<table class=\"table table-striped table-bordered "))
                 .relativePath(relativePath)
                 .icon(pageAttributes.icon().orElse(null))
+                .pageOutputPath(pageOutputPath)
                 .build();
         }
     }
@@ -380,14 +401,13 @@ public class Renderer {
         log.info("Rendering page {}", pagePath);
         final Context context = new Context();
         final PageInfo info = pageInfo.get(pagePath);
-        final Path pageOutputPath = componentOutputPath.resolve(info.relativePath());
-        Files.createDirectories(pageOutputPath.getParent());
-        final FileWriter fileWriter = new FileWriter(pageOutputPath.toFile());
+        Files.createDirectories(info.pageOutputPath().getParent());
+        final FileWriter fileWriter = new FileWriter(info.pageOutputPath().toFile());
         context.setVariable("title", info.title());
         context.setVariable("icon", info.icon());
         final String iconsHtml = info.iconReferences().getHtml(
             assetsOutputPath.resolve(component.getAssetsOutputPath() + "/"),
-            pageOutputPath
+            info.pageOutputPath()
         );
         context.setVariable("toc", info.tableOfContents());
         context.setVariable("content", info.parsedContent() + iconsHtml);
@@ -402,12 +422,12 @@ public class Renderer {
             .collect(Collectors.toList());
         Collections.reverse(otherReleases);
         context.setVariable("otherReleases", otherReleases);
-        linkBuilder.setCurrentPageOutputPath(pageOutputPath);
+        linkBuilder.setCurrentPageOutputPath(info.pageOutputPath());
         final String template = getTemplate(pagePath);
         templateEngine.process(template, context, fileWriter);
         if (sitemapGenerator != null && !info.relativePath().contains("404")) {
             sitemapGenerator.addUrl(new WebSitemapUrl.Options(
-                baseUrl + "/" + componentOutputPath.relativize(pageOutputPath)
+                baseUrl + "/" + componentOutputPath.relativize(info.pageOutputPath())
             ).lastMod(renderDate).changeFreq(ChangeFreq.DAILY).build());
         }
     }
