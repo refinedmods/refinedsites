@@ -7,14 +7,16 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-08-15
+
 ### Added
 
--  Support for article pages.
--  Support for RSS feed generation for articles.
+-   Support for article pages.
+-   Support for RSS feed generation for articles.
 
 ### Changed
 
--  Snapshot versions are no longer considered the latest version.
+-   Snapshot versions are no longer considered the latest version.
 
 ### Fixed
 
@@ -68,7 +70,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.4.0...HEAD
+
+[0.4.0]: https://github.com/refinedmods/refinedsites/compare/v0.3.0...v0.4.0
 
 [0.3.0]: https://github.com/refinedmods/refinedsites/compare/v0.2.3...v0.3.0
 
