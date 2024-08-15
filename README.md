@@ -12,8 +12,7 @@ Refined Sites is a static site generator used by Refined Mods.
     - [Issues](https://github.com/refinedmods/refinedsites/issues)
     - [Refined Mods on GitHub](https://github.com/refinedmods)
 - [Discord](https://discordapp.com/invite/VYzsydb)
-- [Twitter](https://twitter.com/refinedmods)
-- [Mastodon](https://anvil.social/@refinedmods)
+- [X (Twitter)](https://x.com/refinedmods)
 
 ## Building
 

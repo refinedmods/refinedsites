@@ -15,11 +15,15 @@ import com.refinedmods.refinedsites.render.release.ReleasesIndex;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +39,14 @@ import com.redfin.sitemapgenerator.ChangeFreq;
 import com.redfin.sitemapgenerator.SitemapIndexGenerator;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndContentImpl;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndFeedImpl;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedOutput;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
@@ -167,16 +179,32 @@ public class Renderer {
         );
         final PageAttributeCache pageAttributeCache = new PageAttributeCache();
         final Map<Path, PageInfo> pageInfo = new HashMap<>();
+        final Map<String, List<PageInfo>> infosByPageType = new HashMap<>();
         for (final Path pagePath : component.getPages()) {
-            pageInfo.put(pagePath, renderPagePre(
+            final PageInfo singleInfo = renderPagePre(
                 pagePath,
                 component,
                 pageAttributeCache,
                 sourceToDestinationAssets,
                 componentOutputPath
-            ));
+            );
+            pageInfo.put(pagePath, singleInfo);
+            infosByPageType.computeIfAbsent(singleInfo.type(), k -> new ArrayList<>()).add(singleInfo);
         }
         prepareNavigationItems(component.getNavigationItems(), pageInfo);
+        final List<ArticleRender> articles = infosByPageType.getOrDefault("article", Collections.emptyList())
+            .stream()
+            .map(info -> new ArticleRender(
+                info.title(),
+                info.description(),
+                info.relativePath(),
+                info.date().orElse(LocalDate.EPOCH)
+            ))
+            .sorted(Comparator.comparing(ArticleRender::getDate).reversed())
+            .toList();
+
+        writeRssFeed(component, sitemapBaseUrl, articles, componentOutputPath);
+
         for (final Path pagePath : component.getPages()) {
             renderPage(
                 pagePath,
@@ -188,12 +216,44 @@ public class Renderer {
                 parsedReleases,
                 releaseMatchingComponentVersion,
                 sitemapBaseUrl,
-                componentSitemap
+                componentSitemap,
+                articles
             );
         }
         if (componentSitemap != null) {
             componentSitemap.write();
             sitemapIndex.addUrl(sitemapBaseUrl + "/sitemap.xml", renderDate);
+        }
+    }
+
+    private static void writeRssFeed(final Component component,
+                                     final String sitemapBaseUrl,
+                                     final List<ArticleRender> articles,
+                                     final Path componentOutputPath) {
+        final SyndFeed feed = new SyndFeedImpl();
+        feed.setFeedType("rss_1.0");
+        feed.setTitle(component.getName() + " news");
+        feed.setLink(sitemapBaseUrl + "/rss.xml");
+        feed.setDescription("The latest news about " + component.getName());
+        for (final ArticleRender article : articles) {
+            final SyndEntry entry = new SyndEntryImpl();
+            entry.setTitle(article.getTitle());
+            final SyndContent description = new SyndContentImpl();
+            description.setType("text/html");
+            description.setValue(article.getDescription());
+            entry.setDescription(description);
+            entry.setPublishedDate(asDate(article.getDate()));
+            entry.setUpdatedDate(asDate(article.getDate()));
+            entry.setLink(sitemapBaseUrl + "/" + article.getUrl().replace("\\", "/"));
+            feed.getEntries().add(entry);
+        }
+        try {
+            final Writer writer = new FileWriter(componentOutputPath.resolve("rss.xml").toFile());
+            final SyndFeedOutput syndFeedOutput = new SyndFeedOutput();
+            syndFeedOutput.output(feed, writer);
+            writer.close();
+        } catch (final IOException | FeedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -366,7 +426,10 @@ public class Renderer {
                 .toList();
             final String parsedContent = (String) document.getContent();
             return PageInfo.builder()
+                .type(pageAttributes.type())
                 .title(pageAttributes.name())
+                .description(pageAttributes.description())
+                .date(pageAttributes.date())
                 .tableOfContents(toc)
                 .iconReferences(icons)
                 .parsedContent(parsedContent
@@ -397,7 +460,8 @@ public class Renderer {
                             final List<ParsedRelease> releases,
                             final ParsedRelease releaseMatchingComponentVersion,
                             final String baseUrl,
-                            @Nullable final WebSitemapGenerator sitemapGenerator) throws IOException {
+                            @Nullable final WebSitemapGenerator sitemapGenerator,
+                            final List<ArticleRender> articles) throws IOException {
         log.info("Rendering page {}", pagePath);
         final Context context = new Context();
         final PageInfo info = pageInfo.get(pagePath);
@@ -422,22 +486,29 @@ public class Renderer {
             .collect(Collectors.toList());
         Collections.reverse(otherReleases);
         context.setVariable("otherReleases", otherReleases);
+        context.setVariable("articles", articles);
+        context.setVariable("date", info.date().orElse(LocalDate.EPOCH));
+        context.setVariable("description", info.description());
         linkBuilder.setCurrentPageOutputPath(info.pageOutputPath());
-        final String template = getTemplate(pagePath);
+        final String template = getTemplate(pagePath, info.type());
         templateEngine.process(template, context, fileWriter);
         if (sitemapGenerator != null && !info.relativePath().contains("404")) {
             sitemapGenerator.addUrl(new WebSitemapUrl.Options(
                 baseUrl + "/" + componentOutputPath.relativize(info.pageOutputPath())
-            ).lastMod(renderDate).changeFreq(ChangeFreq.DAILY).build());
+            ).lastMod(info.date().map(Renderer::asDate).orElse(renderDate)).changeFreq(ChangeFreq.DAILY).build());
         }
     }
 
-    private String getTemplate(final Path pagePath) {
+    private static Date asDate(final LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    private String getTemplate(final Path pagePath, final String pageType) {
         final Path potentialTemplateOverridePath = Path.of(
             pagePath.toString().replace(".adoc", ".html")
         );
         if (!Files.exists(potentialTemplateOverridePath)) {
-            return "page.html";
+            return "article".equals(pageType) ? "article.html" : "page.html";
         }
         return sourcePath.relativize(potentialTemplateOverridePath).toString();
     }

@@ -1,6 +1,7 @@
 package com.refinedmods.refinedsites.render;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,11 +30,20 @@ public class PageAttributeCache {
     private PageAttributes doLoadAttributes(final Asciidoctor asciidoctor, final Path path) {
         final Document document = asciidoctor.loadFile(path.toFile(), Options.builder().build());
         return new PageAttributes(
+            Optional.ofNullable(document.getAttribute("type")).map(Object::toString).orElse("page"),
             document.getDoctitle(),
+            Optional.ofNullable(document.getAttribute("description")).map(Object::toString).orElse(""),
+            Optional.ofNullable(document.getAttribute("date"))
+                .map(Object::toString)
+                .map(LocalDate::parse),
             Optional.ofNullable(document.getAttribute("icon")).map(Object::toString)
         );
     }
 
-    public record PageAttributes(String name, Optional<String> icon) {
+    public record PageAttributes(String type,
+                                 String name,
+                                 String description,
+                                 Optional<LocalDate> date,
+                                 Optional<String> icon) {
     }
 }
