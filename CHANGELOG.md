@@ -7,6 +7,19 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+-  Support for article pages.
+-  Support for RSS feed generation for articles.
+
+### Changed
+
+-  Snapshot versions are no longer considered the latest version.
+
+### Fixed
+
+-   Asciidoc Xref bug on Windows.
+
 ## [0.3.0] - 2023-12-25
 
 ### Added
