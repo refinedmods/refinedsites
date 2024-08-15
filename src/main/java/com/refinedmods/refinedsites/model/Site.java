@@ -48,7 +48,7 @@ public class Site {
         // sort componentsWithSameName based on NEWEST-first semver version
         componentsWithSameName.sort((component1, component2) -> {
             if (component1.getVersion().snapshot()) {
-                return -1;
+                return 1;
             }
             final Semver semver1 = new Semver(component1.getVersion().name());
             final Semver semver2 = new Semver(component2.getVersion().name());
