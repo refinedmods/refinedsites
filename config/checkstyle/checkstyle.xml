@@ -99,7 +99,9 @@
         <module name="MethodCount"/>
         <module name="MethodLength"/>
         <module name="OuterTypeNumber"/>
-        <module name="RecordComponentNumber"/>
+        <module name="RecordComponentNumber">
+            <property name="max" value="20"/>
+        </module>
         <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad"/>
         <module name="NoWhitespaceAfter"/>
