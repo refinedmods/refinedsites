@@ -15,6 +15,7 @@ import com.refinedmods.refinedsites.render.release.ReleasesIndex;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +39,14 @@ import com.redfin.sitemapgenerator.ChangeFreq;
 import com.redfin.sitemapgenerator.SitemapIndexGenerator;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndContentImpl;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndEntryImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndFeedImpl;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedOutput;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
@@ -193,6 +202,9 @@ public class Renderer {
             ))
             .sorted(Comparator.comparing(ArticleRender::getDate).reversed())
             .toList();
+
+        writeRssFeed(component, sitemapBaseUrl, articles, componentOutputPath);
+
         for (final Path pagePath : component.getPages()) {
             renderPage(
                 pagePath,
@@ -211,6 +223,37 @@ public class Renderer {
         if (componentSitemap != null) {
             componentSitemap.write();
             sitemapIndex.addUrl(sitemapBaseUrl + "/sitemap.xml", renderDate);
+        }
+    }
+
+    private static void writeRssFeed(final Component component,
+                                     final String sitemapBaseUrl,
+                                     final List<ArticleRender> articles,
+                                     final Path componentOutputPath) {
+        final SyndFeed feed = new SyndFeedImpl();
+        feed.setFeedType("rss_1.0");
+        feed.setTitle(component.getName() + " news");
+        feed.setLink(sitemapBaseUrl + "/rss.xml");
+        feed.setDescription("The latest news about " + component.getName());
+        for (final ArticleRender article : articles) {
+            final SyndEntry entry = new SyndEntryImpl();
+            entry.setTitle(article.getTitle());
+            final SyndContent description = new SyndContentImpl();
+            description.setType("text/html");
+            description.setValue(article.getDescription());
+            entry.setDescription(description);
+            entry.setPublishedDate(asDate(article.getDate()));
+            entry.setUpdatedDate(asDate(article.getDate()));
+            entry.setLink(sitemapBaseUrl + "/" + article.getUrl().replace("\\", "/"));
+            feed.getEntries().add(entry);
+        }
+        try {
+            final Writer writer = new FileWriter(componentOutputPath.resolve("rss.xml").toFile());
+            final SyndFeedOutput syndFeedOutput = new SyndFeedOutput();
+            syndFeedOutput.output(feed, writer);
+            writer.close();
+        } catch (final IOException | FeedException e) {
+            throw new RuntimeException(e);
         }
     }
 
