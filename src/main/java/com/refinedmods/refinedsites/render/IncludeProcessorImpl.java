@@ -33,7 +33,7 @@ class IncludeProcessorImpl extends IncludeProcessor {
                 final String xrefPath = matchResult.group(1);
                 final Path xrefPathFull = path.getParent().resolve(xrefPath);
                 final Path relativeToSource = Paths.get(reader.getDir()).relativize(xrefPathFull);
-                return "xref:" + relativeToSource;
+                return "xref:" + relativeToSource.toString().replace("\\", "/");
             });
             reader.pushInclude(fixedContent, path.toString(), path.toString(), 1, attributes);
         } catch (final IOException e) {
