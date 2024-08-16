@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+-   Articles are retrieved from snapshot version if possible.
+-   Playbook filename is now a command line argument. Default is `playbook.json`.
+
 ## [0.4.0] - 2024-08-15
 
 ### Added
