@@ -37,10 +37,10 @@ public class SiteFactory {
 
     private final Path rootPath;
 
-    public Site getSite() {
+    public Site getSite(final String playbookJsonFilename) {
         try {
             log.info("Loading playbook");
-            final Path playbookPath = rootPath.resolve("playbook.json");
+            final Path playbookPath = rootPath.resolve(playbookJsonFilename);
             final PlaybookConfig json = GSON.fromJson(Files.readString(playbookPath), PlaybookConfig.class);
             log.info("Loaded playbook");
             final List<Component> components = json.getComponents().stream().flatMap(component -> {

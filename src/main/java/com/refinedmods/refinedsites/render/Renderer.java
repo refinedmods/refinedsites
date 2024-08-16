@@ -104,8 +104,27 @@ public class Renderer {
             for (final Component component : site.getComponents()) {
                 renderComponentPre(component);
             }
-            for (final Component component : site.getComponents()) {
-                renderComponent(component, assetsPath, site, sitemapIndex);
+            final var components = site.getComponents()
+                .stream()
+                .collect(Collectors.groupingBy(Component::getName));
+            for (final var entry : components.entrySet()) {
+                log.info("Rendering versions of component {}", entry.getKey());
+                final List<Component> componentVersions = entry.getValue();
+                final Component snapshotComponent = componentVersions.stream()
+                    .filter(c -> c.getVersion().snapshot())
+                    .findFirst()
+                    .orElse(null);
+                List<ArticleRender> articles = null;
+                if (snapshotComponent != null) {
+                    articles = renderComponent(snapshotComponent, assetsPath, site, sitemapIndex, null);
+                    log.info("Reusing {} articles from snapshot in other components", articles.size());
+                }
+                for (final Component component : componentVersions) {
+                    if (component == snapshotComponent) {
+                        continue;
+                    }
+                    renderComponent(component, assetsPath, site, sitemapIndex, articles);
+                }
             }
             sitemapIndex.write();
             Files.writeString(outputPath.resolve("robots.txt"), "Sitemap: " + url + "/sitemap_index.xml");
@@ -149,10 +168,11 @@ public class Renderer {
         component.setSlug(componentSlug);
     }
 
-    private void renderComponent(final Component component,
-                                 final Path assetsOutputPath,
-                                 final Site site,
-                                 final SitemapIndexGenerator sitemapIndex)
+    private List<ArticleRender> renderComponent(final Component component,
+                                                final Path assetsOutputPath,
+                                                final Site site,
+                                                final SitemapIndexGenerator sitemapIndex,
+                                                @Nullable final List<ArticleRender> articles)
         throws IOException {
         log.info("Rendering component {}", component);
         final Path componentOutputPath = getComponentOutputPath(component);
@@ -192,18 +212,9 @@ public class Renderer {
             infosByPageType.computeIfAbsent(singleInfo.type(), k -> new ArrayList<>()).add(singleInfo);
         }
         prepareNavigationItems(component.getNavigationItems(), pageInfo);
-        final List<ArticleRender> articles = infosByPageType.getOrDefault("article", Collections.emptyList())
-            .stream()
-            .map(info -> new ArticleRender(
-                info.title(),
-                info.description(),
-                info.relativePath(),
-                info.date().orElse(LocalDate.EPOCH)
-            ))
-            .sorted(Comparator.comparing(ArticleRender::getDate).reversed())
-            .toList();
 
-        writeRssFeed(component, sitemapBaseUrl, articles, componentOutputPath);
+        final List<ArticleRender> theArticles = articles == null ? getArticles(infosByPageType) : articles;
+        writeRssFeed(component, sitemapBaseUrl, theArticles, componentOutputPath);
 
         for (final Path pagePath : component.getPages()) {
             renderPage(
@@ -217,13 +228,28 @@ public class Renderer {
                 releaseMatchingComponentVersion,
                 sitemapBaseUrl,
                 componentSitemap,
-                articles
+                theArticles
             );
         }
         if (componentSitemap != null) {
             componentSitemap.write();
             sitemapIndex.addUrl(sitemapBaseUrl + "/sitemap.xml", renderDate);
         }
+
+        return theArticles;
+    }
+
+    private static List<ArticleRender> getArticles(final Map<String, List<PageInfo>> infosByPageType) {
+        return infosByPageType.getOrDefault("article", Collections.emptyList())
+            .stream()
+            .map(info -> new ArticleRender(
+                info.title(),
+                info.description(),
+                info.relativePath(),
+                info.date().orElse(LocalDate.EPOCH)
+            ))
+            .sorted(Comparator.comparing(ArticleRender::getDate).reversed())
+            .toList();
     }
 
     private static void writeRssFeed(final Component component,

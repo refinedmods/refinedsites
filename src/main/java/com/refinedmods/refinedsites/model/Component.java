@@ -31,4 +31,9 @@ public class Component {
     public String getRelativePagePath(final Path from, final Path to) {
         return from.relativize(to).toString().replace(".adoc", ".html");
     }
+
+    @Override
+    public String toString() {
+        return name + "@" + version;
+    }
 }

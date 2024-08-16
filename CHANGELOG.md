@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-08-16
+
+### Fixed
+
+-   Articles are retrieved from snapshot version if possible.
+-   Playbook filename is now a command line argument. Default is `playbook.json`.
+
 ## [0.4.0] - 2024-08-15
 
 ### Added
@@ -70,7 +77,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.4.1...HEAD
+
+[0.4.1]: https://github.com/refinedmods/refinedsites/compare/v0.4.0...v0.4.1
 
 [0.4.0]: https://github.com/refinedmods/refinedsites/compare/v0.3.0...v0.4.0
 
