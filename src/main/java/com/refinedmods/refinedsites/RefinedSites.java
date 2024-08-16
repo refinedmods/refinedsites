@@ -18,7 +18,7 @@ public class RefinedSites {
         log.info("Loading playbook from {}", args[0]);
         final Path rootPath = Paths.get(args[0]);
         final SiteFactory siteFactory = new SiteFactory(rootPath);
-        final Site site = siteFactory.getSite();
+        final Site site = siteFactory.getSite(args.length == 2 ? args[1] : "playbook.json");
         log.info("Loaded site {}", site);
         final Renderer renderer = new Renderer(rootPath, rootPath.resolve("output/"), site.getUrl());
         renderer.render(site);
