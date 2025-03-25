@@ -434,9 +434,11 @@ public class Renderer {
             );
             asciidoctor.javaExtensionRegistry().includeProcessor(new IncludeProcessorImpl());
             asciidoctor.javaExtensionRegistry().treeprocessor(new ImageTreeprocessor(
-                pagePath,
-                pageOutputPath,
-                sourceToDestinationAssets
+                sourceToDestinationAssets,
+                sourcePath -> {
+                    final String relativePath2 = component.getRelativePagePath(component.getPagesPath(), sourcePath);
+                    return componentOutputPath.resolve(relativePath2);
+                }
             ));
             asciidoctor.javaExtensionRegistry().inlineMacro(new XRefInlineMacroProcessor(
                 component,
