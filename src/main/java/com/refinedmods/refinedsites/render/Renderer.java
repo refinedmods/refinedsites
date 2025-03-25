@@ -435,8 +435,8 @@ public class Renderer {
             asciidoctor.javaExtensionRegistry().includeProcessor(new IncludeProcessorImpl());
             asciidoctor.javaExtensionRegistry().treeprocessor(new ImageTreeprocessor(
                 sourceToDestinationAssets,
-                sourcePath -> {
-                    final String relativePath2 = component.getRelativePagePath(component.getPagesPath(), sourcePath);
+                sp -> {
+                    final String relativePath2 = component.getRelativePagePath(component.getPagesPath(), sp);
                     return componentOutputPath.resolve(relativePath2);
                 }
             ));

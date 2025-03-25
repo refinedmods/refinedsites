@@ -1,16 +1,13 @@
 package com.refinedmods.refinedsites.render;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.asciidoctor.ast.Block;
 import org.asciidoctor.ast.Cell;
 import org.asciidoctor.ast.Document;
 import org.asciidoctor.ast.Row;
@@ -63,7 +60,7 @@ public class ImageTreeprocessor extends Treeprocessor {
         }
     }
 
-    private String replaceInlineImages(String content, Path currentPageSourcePath) {
+    private String replaceInlineImages(final String content, final Path currentPageSourcePath) {
         final Pattern pattern = Pattern.compile("image:([^\\[]+)\\[");
         final Matcher matcher = pattern.matcher(content);
         final StringBuilder sb = new StringBuilder();
