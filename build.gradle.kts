@@ -31,6 +31,7 @@ dependencies {
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.github.dfabulich:sitemapgen4j:1.1.2")
     implementation("com.rometools:rome:2.1.0")
+    implementation("org.apache.commons:commons-text:1.13.0")
 }
 
 // https://github.com/ultraq/thymeleaf-layout-dialect/issues/220#issuecomment-944874151
