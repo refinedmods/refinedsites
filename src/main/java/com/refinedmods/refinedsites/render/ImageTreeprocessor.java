@@ -1,14 +1,21 @@
 package com.refinedmods.refinedsites.render;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.asciidoctor.ast.Block;
+import org.asciidoctor.ast.Cell;
 import org.asciidoctor.ast.Document;
+import org.asciidoctor.ast.Row;
 import org.asciidoctor.ast.StructuralNode;
+import org.asciidoctor.ast.Table;
 import org.asciidoctor.extension.Treeprocessor;
 import org.jruby.RubyHash;
 
@@ -28,8 +35,7 @@ public class ImageTreeprocessor extends Treeprocessor {
 
     private void processBlock(final StructuralNode block, final Path currentPageSourcePath) {
         final List<StructuralNode> blocks = block.getBlocks();
-        for (int i = 0; i < blocks.size(); i++) {
-            final StructuralNode currentBlock = blocks.get(i);
+        for (final StructuralNode currentBlock : blocks) {
             if ("image".equals(currentBlock.getContext())) {
                 final Path sourcePath = currentPageSourcePath.getParent().resolve(
                     (String) currentBlock.getAttribute("target")
@@ -41,9 +47,39 @@ public class ImageTreeprocessor extends Treeprocessor {
                 final Path relativePath = pagePathToOutputPathResolver.apply(currentPageSourcePath)
                     .getParent().relativize(destinationPath);
                 currentBlock.setAttribute("target", relativePath.toString(), true);
+            } else if ("table".equals(currentBlock.getContext())) {
+                processTable((Table) currentBlock, currentPageSourcePath);
             } else {
                 processBlock(currentBlock, currentPageSourcePath);
             }
         }
+    }
+
+    private void processTable(final Table table, final Path currentPageSourcePath) {
+        for (final Row row : table.getBody()) {
+            for (final Cell cell : row.getCells()) {
+                cell.setSource(replaceInlineImages(cell.getSource(), currentPageSourcePath));
+            }
+        }
+    }
+
+    private String replaceInlineImages(String content, Path currentPageSourcePath) {
+        final Pattern pattern = Pattern.compile("image:([^\\[]+)\\[");
+        final Matcher matcher = pattern.matcher(content);
+        final StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            final String imagePath = matcher.group(1);
+            final Path sourcePath = currentPageSourcePath.getParent().resolve(imagePath).normalize();
+            final Path destinationPath = sourceToDestinationAssets.get(sourcePath);
+            if (destinationPath == null) {
+                throw new RuntimeException("Inline asset " + sourcePath + " not found");
+            }
+            final Path relativePath = pagePathToOutputPathResolver.apply(currentPageSourcePath)
+                .getParent().relativize(destinationPath);
+            final String replacement = "image:" + relativePath.toString().replace("\\", "/") + "[";
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 }
