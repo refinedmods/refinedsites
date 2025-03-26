@@ -1,5 +1,7 @@
 package com.refinedmods.refinedsites.render;
 
+import com.refinedmods.refinedsites.model.Component;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.jruby.RubyHash;
 
 @RequiredArgsConstructor
 public class ImageTreeprocessor extends Treeprocessor {
+    private final Component component;
     private final Map<Path, Path> sourceToDestinationAssets;
     private final Function<Path, Path> pagePathToOutputPathResolver;
 
@@ -25,7 +28,8 @@ public class ImageTreeprocessor extends Treeprocessor {
     public Document process(final Document document) {
         final RubyHash attributes = (RubyHash) document.getOptions().get("attributes");
         final String path = (String) attributes.get("docfile");
-        final Path currentPageSourcePath = Path.of(path);
+        final Path currentPageSourcePath =
+            component.getRootPath().resolve(component.getRootPath().toAbsolutePath().relativize(Path.of(path)));
         processBlock(document, currentPageSourcePath);
         return document;
     }
