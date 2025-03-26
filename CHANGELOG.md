@@ -7,6 +7,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2025-03-26
+
 ### Fixed
 
 -   Fixed inline images not loading.
@@ -98,7 +100,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.5.1...HEAD
+
+[0.5.1]: https://github.com/refinedmods/refinedsites/compare/v0.5.0...v0.5.1
 
 [0.5.0]: https://github.com/refinedmods/refinedsites/compare/v0.4.1...v0.5.0
 
