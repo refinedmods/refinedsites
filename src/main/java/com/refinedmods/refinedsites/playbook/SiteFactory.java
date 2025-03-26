@@ -107,7 +107,8 @@ public class SiteFactory {
     private List<SourceDataProvider<?>> getSourceDataProviders(final ReleaseConfig releaseConfig) {
         final List<SourceDataProvider<?>> sourceDataProviders = new ArrayList<>();
         if (releaseConfig.getGithub() != null) {
-            sourceDataProviders.add(new GitHubSourceDataProvider(releaseConfig.getGithub(), getGhToken()));
+            releaseConfig.getGithub()
+                .forEach(repo -> sourceDataProviders.add(new GitHubSourceDataProvider(repo, getGhToken())));
         }
         if (releaseConfig.getCurseforge() != null) {
             sourceDataProviders.add(new CurseForgeSourceDataProvider(
