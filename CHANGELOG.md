@@ -7,6 +7,21 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+-  Support for inline images and images in a table.
+-  Multiple GitHub repositories are supported for a single component now.
+
+### Changed
+
+-  The GitHub snapshot branch is optional now for a component.
+
+### Fixed
+
+-   Page title escaping for special characters.
+-   Blockquote styling.
+-   Failing to build when using `xref` on a page that contains an image.
+
 ## [0.4.1] - 2024-08-16
 
 ### Fixed
