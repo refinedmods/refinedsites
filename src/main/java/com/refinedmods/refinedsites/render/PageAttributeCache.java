@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.StringEscapeUtils;
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Options;
 import org.asciidoctor.ast.Document;
@@ -31,8 +32,11 @@ public class PageAttributeCache {
         final Document document = asciidoctor.loadFile(path.toFile(), Options.builder().build());
         return new PageAttributes(
             Optional.ofNullable(document.getAttribute("type")).map(Object::toString).orElse("page"),
-            document.getDoctitle(),
-            Optional.ofNullable(document.getAttribute("description")).map(Object::toString).orElse(""),
+            StringEscapeUtils.unescapeHtml4(document.getDoctitle()),
+            Optional.ofNullable(document.getAttribute("description"))
+                .map(Object::toString)
+                .map(StringEscapeUtils::unescapeHtml4)
+                .orElse(""),
             Optional.ofNullable(document.getAttribute("date"))
                 .map(Object::toString)
                 .map(LocalDate::parse),

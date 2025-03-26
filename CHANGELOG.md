@@ -7,6 +7,23 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-03-26
+
+### Added
+
+-   Support for inline images and images in a table.
+-   Multiple GitHub repositories are supported for a single component now.
+
+### Changed
+
+-   The GitHub snapshot branch is optional now for a component.
+
+### Fixed
+
+-   Page title escaping for special characters.
+-   Blockquote styling.
+-   Failing to build when using `xref` on a page that contains an image.
+
 ## [0.4.1] - 2024-08-16
 
 ### Fixed
@@ -77,7 +94,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.5.0...HEAD
+
+[0.5.0]: https://github.com/refinedmods/refinedsites/compare/v0.4.1...v0.5.0
 
 [0.4.1]: https://github.com/refinedmods/refinedsites/compare/v0.4.0...v0.4.1
 

@@ -51,12 +51,14 @@ class GithubComponentFactory implements ComponentFactory {
                     log.info("Ignoring version {}", version);
                 }
             }
-            validTags.add(new Tag(
-                config.getSnapshotBranch(),
-                "snapshot",
-                "snapshot",
-                true
-            ));
+            if (config.getSnapshotBranch() != null) {
+                validTags.add(new Tag(
+                    config.getSnapshotBranch(),
+                    "snapshot",
+                    "snapshot",
+                    true
+                ));
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

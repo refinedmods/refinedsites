@@ -434,9 +434,11 @@ public class Renderer {
             );
             asciidoctor.javaExtensionRegistry().includeProcessor(new IncludeProcessorImpl());
             asciidoctor.javaExtensionRegistry().treeprocessor(new ImageTreeprocessor(
-                pagePath,
-                pageOutputPath,
-                sourceToDestinationAssets
+                sourceToDestinationAssets,
+                sp -> {
+                    final String relativePath2 = component.getRelativePagePath(component.getPagesPath(), sp);
+                    return componentOutputPath.resolve(relativePath2);
+                }
             ));
             asciidoctor.javaExtensionRegistry().inlineMacro(new XRefInlineMacroProcessor(
                 component,
@@ -459,7 +461,8 @@ public class Renderer {
                 .tableOfContents(toc)
                 .iconReferences(icons)
                 .parsedContent(parsedContent
-                    .replace("<table class=\"", "<table class=\"table table-striped table-bordered "))
+                    .replace("<table class=\"", "<table class=\"table table-striped table-bordered ")
+                    .replace("<blockquote>", "<blockquote class=\"blockquote\">"))
                 .relativePath(relativePath)
                 .icon(pageAttributes.icon().orElse(null))
                 .pageOutputPath(pageOutputPath)
