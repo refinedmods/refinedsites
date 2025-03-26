@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed inline images not loading.
+
 ## [0.5.0] - 2025-03-26
 
 ### Added
