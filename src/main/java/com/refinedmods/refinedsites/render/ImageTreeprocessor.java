@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.asciidoctor.ast.Cell;
 import org.asciidoctor.ast.Document;
+import org.asciidoctor.ast.ListItem;
 import org.asciidoctor.ast.Row;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.ast.Table;
@@ -50,6 +51,16 @@ public class ImageTreeprocessor extends Treeprocessor {
                 currentBlock.setAttribute("target", relativePath.toString(), true);
             } else if ("table".equals(currentBlock.getContext())) {
                 processTable((Table) currentBlock, currentPageSourcePath);
+            } else if (currentBlock instanceof org.asciidoctor.ast.List list) {
+                list.getBlocks().forEach(b -> {
+                    if (b instanceof ListItem listItem) {
+                        listItem.setSource(replaceInlineImages(listItem.getSource(), currentPageSourcePath));
+                    }
+                    b.getBlocks().forEach(b2 -> processBlock(b2, currentPageSourcePath));
+                });
+            } else if (currentBlock instanceof ListItem listItem) {
+                listItem.setSource(replaceInlineImages(listItem.getSource(), currentPageSourcePath));
+                currentBlock.getBlocks().forEach(b2 -> processBlock(b2, currentPageSourcePath));
             } else {
                 processBlock(currentBlock, currentPageSourcePath);
             }
