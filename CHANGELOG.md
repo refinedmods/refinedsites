@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 -   Snapshot components now get the latest version as current version in the releases overview.
+-   Milestone and beta releases are now sorted correctly.
 
 ## [0.6.1] - 2025-03-29
 
