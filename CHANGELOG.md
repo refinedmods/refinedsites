@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+-   Snapshot components now get the latest version as current version in the releases overview.
+
 ## [0.6.1] - 2025-03-29
 
 ### Fixed
