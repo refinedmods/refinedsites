@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-03-29
+
+### Added
+
+-   Renderer for releases provides more information about release platforms now.
+
 ## [0.5.2] - 2025-03-27
 
 ### Fixed
@@ -106,7 +112,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.6.0...HEAD
+
+[0.6.0]: https://github.com/refinedmods/refinedsites/compare/v0.5.2...v0.6.0
 
 [0.5.2]: https://github.com/refinedmods/refinedsites/compare/v0.5.1...v0.5.2
 

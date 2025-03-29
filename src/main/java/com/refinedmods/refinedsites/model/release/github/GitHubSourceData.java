@@ -29,7 +29,7 @@ public class GitHubSourceData extends AbstractSourceData {
     private final String discussionUrl;
 
     public GitHubSourceData(final GHRelease release) {
-        super("github", release.getName(), release.getUrl().toString());
+        super("github", release.getName(), release.getUrl().toString(), null);
         try {
             this.id = release.getId();
             this.nodeId = release.getNodeId();

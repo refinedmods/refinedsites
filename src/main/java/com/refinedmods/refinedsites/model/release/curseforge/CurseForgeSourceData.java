@@ -1,9 +1,11 @@
 package com.refinedmods.refinedsites.model.release.curseforge;
 
 import com.refinedmods.refinedsites.model.release.AbstractSourceData;
+import com.refinedmods.refinedsites.model.release.Platform;
 
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
 
 import lombok.Getter;
 
@@ -26,7 +28,8 @@ public class CurseForgeSourceData extends AbstractSourceData {
     private final String htmlUrl;
 
     CurseForgeSourceData(final String projectId, final String projectSlug, final CurseForgeRelease release) {
-        super("curseforge", release.getDisplayName(), "https://www.curseforge.com/api/v1/mods/" + projectId + "/files/" + release.getId());
+        super("curseforge", release.getDisplayName(),
+            "https://www.curseforge.com/api/v1/mods/" + projectId + "/files/" + release.getId(), getPlatform(release));
         this.id = release.getId();
         this.createdAt = release.getDateCreated();
         this.dateModified = release.getDateModified();
@@ -41,12 +44,24 @@ public class CurseForgeSourceData extends AbstractSourceData {
         this.hasServerPack = release.isHasServerPack();
         this.additionalServerPackFilesCount = release.getAdditionalServerPackFilesCount();
         this.isEarlyAccessContent = release.isEarlyAccessContent();
-        this.downloadUrl = "https://www.curseforge.com/minecraft/mc-mods/" + projectSlug + "/download/" + release.getId();
+        this.downloadUrl =
+            "https://www.curseforge.com/minecraft/mc-mods/" + projectSlug + "/download/" + release.getId();
         this.htmlUrl = "https://www.curseforge.com/minecraft/mc-mods/" + projectSlug + "/files/" + release.getId();
     }
 
     @Override
     public long getDownloads() {
         return totalDownloads;
+    }
+
+    @Nullable
+    private static Platform getPlatform(final CurseForgeRelease release) {
+        if (release.getGameVersions().contains("NeoForge")) {
+            return Platform.NEOFORGE;
+        }
+        if (release.getGameVersions().contains("Forge")) {
+            return Platform.FORGE;
+        }
+        return release.getGameVersions().contains("Fabric") ? Platform.FABRIC : null;
     }
 }

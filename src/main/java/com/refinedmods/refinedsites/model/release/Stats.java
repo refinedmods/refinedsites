@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -21,6 +22,21 @@ public class Stats {
         return new Stats(
             sourceData.stream().map(source -> new SourceDownloads(source.getSource(), source.getDownloads())).toList(),
             sourceData.stream().mapToLong(AbstractSourceData::getDownloads).sum()
+        );
+    }
+
+    public static Stats of(final Release release) {
+        return new Stats(
+            release.getSourceData().stream()
+                .collect(Collectors.groupingBy(
+                    AbstractSourceData::getSource,
+                    Collectors.summingLong(AbstractSourceData::getDownloads)
+                ))
+                .entrySet()
+                .stream()
+                .map(e -> new SourceDownloads(e.getKey(), e.getValue()))
+                .toList(),
+            release.getSourceData().stream().mapToLong(AbstractSourceData::getDownloads).sum()
         );
     }
 
