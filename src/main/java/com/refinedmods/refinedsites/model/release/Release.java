@@ -28,7 +28,7 @@ public class Release {
             .sorted(Comparator.comparing(AbstractSourceData::getCreatedAt))
             .collect(Collectors.toList());
         this.sources = this.sourceData.stream().map(AbstractSourceData::getUrl).collect(Collectors.toSet());
-        this.createdAt = this.sourceData.get(0).getCreatedAt();
-        this.stats = Stats.of(this.sourceData);
+        this.createdAt = this.sourceData.getFirst().getCreatedAt();
+        this.stats = Stats.of(this);
     }
 }

@@ -7,6 +7,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+-   Renderer for releases provides more information about release platforms now.
+
 ## [0.5.2] - 2025-03-27
 
 ### Fixed

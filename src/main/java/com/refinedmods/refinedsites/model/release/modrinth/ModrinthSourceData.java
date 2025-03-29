@@ -1,8 +1,10 @@
 package com.refinedmods.refinedsites.model.release.modrinth;
 
 import com.refinedmods.refinedsites.model.release.AbstractSourceData;
+import com.refinedmods.refinedsites.model.release.Platform;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 import lombok.Getter;
 
@@ -22,7 +24,8 @@ public class ModrinthSourceData extends AbstractSourceData {
     private final String htmlUrl;
 
     ModrinthSourceData(final String projectSlug, final ModrinthRelease release) {
-        super("modrinth", release.getName(), "https://api.modrinth.com/v2/project/" + projectSlug + "/version/" + release.getId());
+        super("modrinth", release.getName(),
+            "https://api.modrinth.com/v2/project/" + projectSlug + "/version/" + release.getId(), getPlatform(release));
         this.id = release.getId();
         this.createdAt = release.getDatePublished();
         this.projectId = release.getProjectId();
@@ -35,6 +38,19 @@ public class ModrinthSourceData extends AbstractSourceData {
         this.files = release.getFiles();
         this.gameVersions = release.getGameVersions();
         this.loaders = release.getLoaders();
-        this.htmlUrl = "https://modrinth.com/mod/" + projectSlug + "/version/" + release.getVersionNumber();
+        // using the version number in the ID will conflict when there are 2 versions with the same version number
+        // (for example for neoforge and fabric) -> so use the real ID (non-conflicting) one
+        this.htmlUrl = "https://modrinth.com/mod/" + projectSlug + "/version/" + release.getId();
+    }
+
+    @Nullable
+    private static Platform getPlatform(final ModrinthRelease release) {
+        if (release.getLoaders().contains("neoforge")) {
+            return Platform.NEOFORGE;
+        }
+        if (release.getLoaders().contains("forge")) {
+            return Platform.FORGE;
+        }
+        return release.getLoaders().contains("fabric") ? Platform.FABRIC : null;
     }
 }

@@ -3,12 +3,14 @@ package com.refinedmods.refinedsites.render;
 import com.refinedmods.refinedsites.model.Component;
 import com.refinedmods.refinedsites.model.NavigationItem;
 import com.refinedmods.refinedsites.model.Site;
+import com.refinedmods.refinedsites.model.release.Platform;
 import com.refinedmods.refinedsites.model.release.Release;
 import com.refinedmods.refinedsites.model.release.Releases;
 import com.refinedmods.refinedsites.model.release.curseforge.CurseForgeSourceData;
 import com.refinedmods.refinedsites.model.release.github.GitHubSourceData;
 import com.refinedmods.refinedsites.model.release.modrinth.ModrinthSourceData;
 import com.refinedmods.refinedsites.render.release.ParsedRelease;
+import com.refinedmods.refinedsites.render.release.ParsedReleasePlatform;
 import com.refinedmods.refinedsites.render.release.ProjectRelease;
 import com.refinedmods.refinedsites.render.release.ProjectReleasesIndex;
 import com.refinedmods.refinedsites.render.release.ReleasesIndex;
@@ -365,6 +367,7 @@ public class Renderer {
                 .map(sd -> ((CurseForgeSourceData) sd).getHtmlUrl())
                 .findFirst()
                 .orElse(null),
+            parseReleasePlatforms(release),
             release.getSourceData().stream().filter(sd -> sd instanceof GitHubSourceData)
                 .map(sd -> ((GitHubSourceData) sd).getHtmlUrl())
                 .findFirst()
@@ -379,6 +382,34 @@ public class Renderer {
                 .findFirst()
                 .orElse(null)
         )).toList();
+    }
+
+    private List<ParsedReleasePlatform> parseReleasePlatforms(final Release release) {
+        final List<ParsedReleasePlatform> platforms = new ArrayList<>();
+        addPlatform(Platform.NEOFORGE, release, platforms);
+        addPlatform(Platform.FORGE, release, platforms);
+        addPlatform(Platform.FABRIC, release, platforms);
+        return platforms;
+    }
+
+    private static void addPlatform(final Platform platform,
+                                    final Release release,
+                                    final List<ParsedReleasePlatform> out) {
+        final var platformData = release.getSourceData()
+            .stream()
+            .filter(sourceData -> sourceData.getPlatform() == platform)
+            .toList();
+        if (!platformData.isEmpty()) {
+            out.add(new ParsedReleasePlatform(platform,
+                platformData.stream().filter(sd -> sd instanceof CurseForgeSourceData)
+                    .map(sd -> ((CurseForgeSourceData) sd).getHtmlUrl())
+                    .findFirst()
+                    .orElse(null),
+                platformData.stream().filter(sd -> sd instanceof ModrinthSourceData)
+                    .map(sd -> ((ModrinthSourceData) sd).getHtmlUrl())
+                    .findFirst()
+                    .orElse(null)));
+        }
     }
 
     private void prepareNavigationItems(final List<NavigationItem> navigationItems,
