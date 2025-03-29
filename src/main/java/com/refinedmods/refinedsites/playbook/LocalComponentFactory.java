@@ -24,15 +24,18 @@ class LocalComponentFactory implements ComponentFactory {
     private final String name;
     private final boolean root;
     private final Version version;
+    private final boolean snapshotIsLatest;
 
     LocalComponentFactory(final Path path,
                           final String name,
                           final boolean root,
-                          final Version version) {
+                          final Version version,
+                          final boolean snapshotIsLatest) {
         this.docsPath = path.resolve("docs/");
         this.name = name;
         this.root = root;
         this.version = version;
+        this.snapshotIsLatest = snapshotIsLatest;
     }
 
     @Override
@@ -58,6 +61,7 @@ class LocalComponentFactory implements ComponentFactory {
                 .version(version)
                 .navigationItems(navItems.stream().map(item -> item.toNavigationItem(pagesPath)).toList())
                 .pages(pages)
+                .snapshotIsLatest(snapshotIsLatest)
                 .build());
         } catch (final IOException e) {
             throw new RuntimeException(e);

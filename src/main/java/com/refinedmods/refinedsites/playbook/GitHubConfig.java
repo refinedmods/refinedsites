@@ -10,6 +10,7 @@ class GitHubConfig {
     private final String repository;
     private final String minimumVersion;
     private final String snapshotBranch;
+    private final boolean snapshotIsLatest;
 
     public String getFullRepository() {
         return organization + "/" + repository;

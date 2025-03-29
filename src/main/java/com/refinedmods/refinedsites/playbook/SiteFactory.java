@@ -145,7 +145,8 @@ public class SiteFactory {
                     component.getVersion(),
                     "v" + component.getVersion(),
                     false
-                )
+                ),
+                false
             );
         }
         log.info("Loading empty component {}", component.getName());
@@ -159,6 +160,7 @@ public class SiteFactory {
             .version(new Version("0.0.0", "v0.0.0", false))
             .navigationItems(Collections.emptyList())
             .pages(Collections.emptyList())
+            .snapshotIsLatest(false)
             .build());
     }
 
@@ -167,6 +169,6 @@ public class SiteFactory {
             "0.0.0",
             "v0.0.0",
             false
-        )).getComponents().toList());
+        ), false).getComponents().toList());
     }
 }

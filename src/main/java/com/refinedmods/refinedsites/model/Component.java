@@ -13,6 +13,7 @@ public class Component {
     private final String name;
     private final boolean root;
     private final Version version;
+    private final boolean snapshotIsLatest;
     private final List<Path> pages;
     private final List<NavigationItem> navigationItems;
     private final Path rootPath;
