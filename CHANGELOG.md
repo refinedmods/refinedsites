@@ -7,6 +7,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.2] - 2025-03-29
+
+### Fixed
+
+-   Snapshot components now get the latest version as current version in the releases overview.
+-   Milestone and beta releases are now sorted correctly.
+
 ## [0.6.1] - 2025-03-29
 
 ### Fixed
@@ -118,7 +125,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.6.2...HEAD
+
+[0.6.2]: https://github.com/refinedmods/refinedsites/compare/v0.6.1...v0.6.2
 
 [0.6.1]: https://github.com/refinedmods/refinedsites/compare/v0.6.0...v0.6.1
 

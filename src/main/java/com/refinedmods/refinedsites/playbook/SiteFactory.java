@@ -96,6 +96,13 @@ public class SiteFactory {
             .stream()
             .map(entry -> new Release(entry.getKey(), entry.getValue()))
             .sorted((a, b) -> {
+                // -milestone.x is a special case. -milestone.x should always come AFTER -beta.x. -beta.x is NEWER.
+                if (a.getName().contains("-milestone.") && b.getName().contains("-beta.")) {
+                    return -1;
+                }
+                if (a.getName().contains("-beta.") && b.getName().contains("-milestone.")) {
+                    return 1;
+                }
                 final Semver sa = new Semver(a.getName().substring(1));
                 final Semver sb = new Semver(b.getName().substring(1));
                 return sa.compareTo(sb);
