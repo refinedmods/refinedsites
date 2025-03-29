@@ -97,10 +97,10 @@ public class SiteFactory {
             .map(entry -> new Release(entry.getKey(), entry.getValue()))
             .sorted((a, b) -> {
                 // -milestone.x is a special case. -milestone.x should always come AFTER -beta.x. -beta.x is NEWER.
-                if (a.getName().contains("-milestone.") && b.getName().contains("-beta.")) {
+                if (a.getName().contains("2.0.0-milestone.") && b.getName().contains("2.0.0-beta.")) {
                     return -1;
                 }
-                if (a.getName().contains("-beta.") && b.getName().contains("-milestone.")) {
+                if (a.getName().contains("2.0.0-beta.") && b.getName().contains("2.0.0-milestone.")) {
                     return 1;
                 }
                 final Semver sa = new Semver(a.getName().substring(1));

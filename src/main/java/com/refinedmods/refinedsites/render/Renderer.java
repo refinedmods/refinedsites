@@ -322,7 +322,7 @@ public class Renderer {
     private ParsedRelease findReleaseMatchingComponentVersion(final Component component,
                                                               final List<ParsedRelease> parsedReleases) {
         if (component.getVersion().snapshot()) {
-            return parsedReleases.getFirst();
+            return parsedReleases.getLast();
         }
         return parsedReleases.stream()
             .filter(release -> release.getRelease().getName().equals(component.getVersion().friendlyName()))
