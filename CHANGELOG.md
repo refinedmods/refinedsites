@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.1] - 2025-03-29
+
+### Fixed
+
+-   Ability to set the snapshot component version as the latest one.
+
 ## [0.6.0] - 2025-03-29
 
 ### Added
@@ -112,7 +118,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -   Initial release.
 
-[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/refinedmods/refinedsites/compare/v0.6.1...HEAD
+
+[0.6.1]: https://github.com/refinedmods/refinedsites/compare/v0.6.0...v0.6.1
 
 [0.6.0]: https://github.com/refinedmods/refinedsites/compare/v0.5.2...v0.6.0
 

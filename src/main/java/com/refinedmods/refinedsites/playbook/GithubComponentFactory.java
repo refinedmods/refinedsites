@@ -23,11 +23,13 @@ class GithubComponentFactory implements ComponentFactory {
     private final String name;
     private final List<Tag> validTags = new ArrayList<>();
     private final GHRepository repo;
+    private final boolean snapshotIsLatest;
 
     GithubComponentFactory(final Path rootPath, final GitHubConfig config, final String name, final String token) {
         try {
             this.rootPath = rootPath;
             this.name = name;
+            this.snapshotIsLatest = config.isSnapshotIsLatest();
             final GitHub github = GitHub.connectUsingOAuth(token);
             this.repo = github.getRepository(config.getFullRepository());
             final Semver minVersion = new Semver(config.getMinimumVersion());
@@ -88,7 +90,8 @@ class GithubComponentFactory implements ComponentFactory {
                     validTag.version,
                     validTag.friendlyVersion,
                     validTag.snapshot
-                )
+                ),
+                snapshotIsLatest
             );
             components.addAll(factory.getComponents().toList());
         }

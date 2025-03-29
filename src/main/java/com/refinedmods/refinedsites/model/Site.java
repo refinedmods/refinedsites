@@ -28,7 +28,8 @@ public class Site {
         this.url = url;
         this.components = components;
         this.componentsByName = componentsByName;
-        componentsByName.forEach((componentName, componentsWithSameName) -> sortComponents(componentsWithSameName));
+        componentsByName.forEach((componentName, componentsWithSameName) ->
+            sortComponents(componentsWithSameName));
         this.releasesByComponentName = releasesByComponentName;
     }
 
@@ -45,6 +46,7 @@ public class Site {
     }
 
     private void sortComponents(final List<Component> componentsWithSameName) {
+        final boolean snapshotIsLatest = componentsWithSameName.stream().anyMatch(Component::isSnapshotIsLatest);
         // sort componentsWithSameName based on NEWEST-first semver version
         componentsWithSameName.sort((component1, component2) -> {
             if (component1.getVersion().snapshot()) {
@@ -54,6 +56,16 @@ public class Site {
             final Semver semver2 = new Semver(component2.getVersion().name());
             return semver2.compareTo(semver1);
         });
-        componentsWithSameName.get(0).setLatest(true);
+        if (snapshotIsLatest) {
+            componentsWithSameName.stream()
+                .filter(c -> c.getVersion().snapshot())
+                .findFirst()
+                .ifPresentOrElse(
+                    snapshot -> snapshot.setLatest(true),
+                    () -> componentsWithSameName.getFirst().setLatest(true)
+                );
+        } else {
+            componentsWithSameName.getFirst().setLatest(true);
+        }
     }
 }
