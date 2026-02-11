@@ -112,20 +112,8 @@ public class Renderer {
             for (final var entry : components.entrySet()) {
                 log.info("Rendering versions of component {}", entry.getKey());
                 final List<Component> componentVersions = entry.getValue();
-                final Component snapshotComponent = componentVersions.stream()
-                    .filter(c -> c.getVersion().snapshot())
-                    .findFirst()
-                    .orElse(null);
-                List<ArticleRender> articles = null;
-                if (snapshotComponent != null) {
-                    articles = renderComponent(snapshotComponent, assetsPath, site, sitemapIndex, null);
-                    log.info("Reusing {} articles from snapshot in other components", articles.size());
-                }
                 for (final Component component : componentVersions) {
-                    if (component == snapshotComponent) {
-                        continue;
-                    }
-                    renderComponent(component, assetsPath, site, sitemapIndex, articles);
+                    renderComponent(component, assetsPath, site, sitemapIndex);
                 }
             }
             sitemapIndex.write();
@@ -173,8 +161,7 @@ public class Renderer {
     private List<ArticleRender> renderComponent(final Component component,
                                                 final Path assetsOutputPath,
                                                 final Site site,
-                                                final SitemapIndexGenerator sitemapIndex,
-                                                @Nullable final List<ArticleRender> articles)
+                                                final SitemapIndexGenerator sitemapIndex)
         throws IOException {
         log.info("Rendering component {}", component);
         final Path componentOutputPath = getComponentOutputPath(component);
@@ -215,7 +202,7 @@ public class Renderer {
         }
         prepareNavigationItems(component.getNavigationItems(), pageInfo);
 
-        final List<ArticleRender> theArticles = articles == null ? getArticles(infosByPageType) : articles;
+        final List<ArticleRender> theArticles = getArticles(infosByPageType);
         writeRssFeed(component, sitemapBaseUrl, theArticles, componentOutputPath);
 
         for (final Path pagePath : component.getPages()) {
